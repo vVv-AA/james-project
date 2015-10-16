@@ -27,6 +27,8 @@ import org.apache.james.imap.processor.main.DefaultImapProcessorFactory;
 import org.apache.james.imapserver.netty.IMAPServerFactory;
 import org.apache.james.mailbox.MailboxManager;
 import org.apache.james.mailbox.SubscriptionManager;
+import org.apache.james.mailbox.quota.QuotaManager;
+import org.apache.james.mailbox.quota.QuotaRootResolver;
 import org.apache.james.modules.mailbox.CassandraMailboxModule;
 import org.apache.james.utils.ConfigurationPerformer;
 import org.apache.james.utils.ConfigurationProvider;
@@ -52,8 +54,11 @@ public class IMAPServerModule extends AbstractModule {
 
     @Provides
     @Singleton
-    ImapProcessor provideImapProcessor(@Named(CassandraMailboxModule.MAILBOXMANAGER_NAME)MailboxManager mailboxManager, SubscriptionManager subscriptionManager) {
-        return DefaultImapProcessorFactory.createXListSupportingProcessor(mailboxManager, subscriptionManager, null, 120, ImmutableSet.of("ACL", "MOVE"));
+    ImapProcessor provideImapProcessor(@Named(CassandraMailboxModule.MAILBOXMANAGER_NAME)MailboxManager mailboxManager, 
+            SubscriptionManager subscriptionManager,
+            QuotaManager quotaManager,
+            QuotaRootResolver quotaRootResolver) {
+        return DefaultImapProcessorFactory.createXListSupportingProcessor(mailboxManager, subscriptionManager, null, quotaManager, quotaRootResolver, 120, ImmutableSet.of("ACL", "MOVE"));
     }
 
     @Provides
