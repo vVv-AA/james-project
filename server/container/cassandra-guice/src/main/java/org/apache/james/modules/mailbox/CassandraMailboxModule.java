@@ -18,9 +18,12 @@
  ****************************************************************/
 package org.apache.james.modules.mailbox;
 
+import java.util.List;
+
 import org.apache.james.adapter.mailbox.store.UserRepositoryAuthenticator;
 import org.apache.james.mailbox.MailboxManager;
 import org.apache.james.mailbox.MailboxPathLocker;
+import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.SubscriptionManager;
 import org.apache.james.mailbox.cassandra.CassandraId;
 import org.apache.james.mailbox.cassandra.CassandraMailboxManager;
@@ -29,11 +32,17 @@ import org.apache.james.mailbox.cassandra.CassandraSubscriptionManager;
 import org.apache.james.mailbox.cassandra.mail.CassandraModSeqProvider;
 import org.apache.james.mailbox.cassandra.mail.CassandraUidProvider;
 import org.apache.james.mailbox.elasticsearch.events.ElasticSearchListeningMessageSearchIndex;
+import org.apache.james.mailbox.exception.MailboxException;
+import org.apache.james.mailbox.model.MailboxPath;
+import org.apache.james.mailbox.model.QuotaRoot;
+import org.apache.james.mailbox.quota.QuotaManager;
+import org.apache.james.mailbox.quota.QuotaRootResolver;
 import org.apache.james.mailbox.store.Authenticator;
 import org.apache.james.mailbox.store.NoMailboxPathLocker;
 import org.apache.james.mailbox.store.mail.MessageMapperFactory;
 import org.apache.james.mailbox.store.mail.ModSeqProvider;
 import org.apache.james.mailbox.store.mail.UidProvider;
+import org.apache.james.mailbox.store.quota.NoQuotaManager;
 import org.apache.james.mailbox.store.search.MessageSearchIndex;
 import org.apache.james.utils.ConfigurationPerformer;
 
@@ -63,6 +72,27 @@ public class CassandraMailboxModule extends AbstractModule {
         bind(new TypeLiteral<ModSeqProvider<CassandraId>>(){}).to(new TypeLiteral<CassandraModSeqProvider>(){});
         bind(new TypeLiteral<UidProvider<CassandraId>>(){}).to(new TypeLiteral<CassandraUidProvider>(){});
         Multibinder.newSetBinder(binder(), ConfigurationPerformer.class).addBinding().to(MailboxConfigurationPerformer.class);
+        
+        bind(QuotaManager.class).to(NoQuotaManager.class);
+        bind(QuotaRootResolver.class).toInstance(new NoQuotaRootResolver());
+    }
+
+    private static class NoQuotaRootResolver implements QuotaRootResolver {
+
+        @Override
+        public QuotaRoot createQuotaRoot(String quotaRootString) {
+            return null;
+        }
+
+        @Override
+        public QuotaRoot getQuotaRoot(MailboxPath mailboxPath) throws MailboxException {
+            return null;
+        }
+
+        @Override
+        public List<MailboxPath> retrieveAssociatedMailboxes(QuotaRoot quotaRoot, MailboxSession mailboxSession) throws MailboxException {
+            return null;
+        }
     }
 
     @Singleton
