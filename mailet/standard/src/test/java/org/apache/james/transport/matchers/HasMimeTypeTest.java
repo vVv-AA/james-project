@@ -88,6 +88,6 @@ public class HasMimeTypeTest {
                 .condition(NON_MATCHING_MIME_TYPES)
                 .build());
 
-        assertEquals(matcher.match(mail), Collections.emptyList());
+        assertThat(matcher.match(mail)).isEmpty();
     }
 }

@@ -21,6 +21,7 @@
 package org.apache.james.transport.matchers;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import org.apache.james.core.MailAddress;
 import org.apache.mailet.Mail;
@@ -33,7 +34,7 @@ import javax.activation.MimeTypeParseException;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 
 
@@ -49,24 +50,23 @@ public class HasMimeType extends GenericMatcher {
     private Set<String> contentType;
 
     public void init() throws javax.mail.MessagingException {
-        contentType = ImmutableSet.copyOf(Splitter.onPattern("\\s*,\\s*").split(getCondition()));
+        contentType = ImmutableSet.copyOf(Splitter.on(",").trimResults().split(getCondition()));
     }
 
     public Collection<MailAddress> match(Mail mail) throws javax.mail.MessagingException {
-        String mimeType;
-        mimeType = getMimeTypeFromMessage(mail.getMessage());
-        if (contentType.contains(mimeType))
-            return mail.getRecipients();
-        else
-            return Collections.emptyList();
+        Optional<String> mimeTypes = getMimeTypeFromMessage(mail.getMessage());
+
+        return mimeTypes.filter(contentType::contains)
+                .map(any -> mail.getRecipients())
+                .orElse(ImmutableList.of());
     }
 
-    private static String getMimeTypeFromMessage(MimeMessage message) throws MessagingException {
+    private static Optional<String> getMimeTypeFromMessage(MimeMessage message) throws MessagingException {
         try {
-            return new MimeType(message.getContentType()).getBaseType();
+            return Optional.of(new MimeType(message.getContentType()).getBaseType());
         } catch (MimeTypeParseException e) {
             LOGGER.warn(e.toString());
-            return "";
+            return Optional.empty();
         }
     }
 
