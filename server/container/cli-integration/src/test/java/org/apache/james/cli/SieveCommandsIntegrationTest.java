@@ -37,7 +37,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
-public class SieveQuotaCommandsIntegrationTest {
+public class SieveCommandsIntegrationTest {
     public static final String USER = "user";
 
     @Rule
