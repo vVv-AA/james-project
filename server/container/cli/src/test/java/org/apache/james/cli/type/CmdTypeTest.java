@@ -234,7 +234,16 @@ public class CmdTypeTest {
         assertThat(CmdType.lookup("removesieveuserquota")).isEqualTo(CmdType.REMOVESIEVEUSERQUOTA);
     }
 
-    @Test 
+    @Test
+    public void lookupAddSieveScriptShouldReturnEnumValue() {
+        assertThat(CmdType.lookup("addsievescript")).isEqualTo(CmdType.ADDSIEVESCRIPT);
+    }
+    @Test
+    public void lookupGetActiveShouldReturnEnumValue() {
+        assertThat(CmdType.lookup("getactivesievescript")).isEqualTo(CmdType.GETACTIVESIEVESCRIPT);
+    }
+
+    @Test
     public void lookupEmptyStringShouldReturnNull() {
         assertThat(CmdType.lookup("")).isNull();
     }
@@ -253,5 +262,5 @@ public class CmdTypeTest {
     public void usageShouldOutputCommandNamesAndArguments() {
         assertThat(CmdType.CREATEMAILBOX.getUsage()).isEqualTo("CreateMailbox <namespace> <user> <name>");
     }
-    
+
 }

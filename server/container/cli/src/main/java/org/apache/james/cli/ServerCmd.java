@@ -18,8 +18,10 @@
  ****************************************************************/
 package org.apache.james.cli;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -32,6 +34,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.james.cli.exceptions.InvalidArgumentNumberException;
 import org.apache.james.cli.exceptions.InvalidPortException;
@@ -332,6 +335,13 @@ public class ServerCmd {
             break;
         case REMOVESIEVEUSERQUOTA:
             sieveProbe.removeSieveQuota(arguments[1]);
+            break;
+        case ADDSIEVESCRIPT:
+            sieveProbe.addActiveSieveScript(arguments[1], arguments[2],
+                    FileUtils.readFileToString(new File(arguments[3]), StandardCharsets.UTF_8));
+            break;
+        case GETACTIVESIEVESCRIPT:
+            printStream.print(IOUtils.toString(sieveProbe.getActive(arguments[1]), StandardCharsets.UTF_8));
             break;
         default:
             throw new UnrecognizedCommandException(cmdType.getCommand());

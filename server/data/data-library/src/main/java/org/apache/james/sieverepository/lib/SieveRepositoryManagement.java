@@ -22,11 +22,14 @@ package org.apache.james.sieverepository.lib;
 
 import org.apache.james.sieverepository.api.SieveRepository;
 import org.apache.james.sieverepository.api.SieveRepositoryManagementMBean;
+import org.apache.james.sieverepository.api.exception.ScriptNotFoundException;
 import org.apache.james.sieverepository.api.exception.SieveRepositoryException;
+import org.apache.james.sieverepository.api.exception.StorageException;
 
 import javax.inject.Inject;
 import javax.management.NotCompliantMBeanException;
 import javax.management.StandardMBean;
+import java.io.InputStream;
 
 public class SieveRepositoryManagement extends StandardMBean implements SieveRepositoryManagementMBean {
 
@@ -70,4 +73,17 @@ public class SieveRepositoryManagement extends StandardMBean implements SieveRep
     public void removeQuota(String user) throws SieveRepositoryException {
         sieveRepository.removeQuota(user);
     }
+
+    @Override
+    public void addActiveSieveScript(String user, String toFileName, String content) throws Exception {
+        String sanitizedTargetFileName = SieveRepositoryManagementMBean.sanitizeScriptName(toFileName);
+        sieveRepository.putScript(user, sanitizedTargetFileName, content);
+        sieveRepository.setActive(user, sanitizedTargetFileName);
+    }
+
+    @Override
+    public InputStream getActive(String user) throws ScriptNotFoundException, StorageException {
+        return sieveRepository.getActive(user);
+    }
+
 }

@@ -20,9 +20,16 @@
 
 package org.apache.james.sieverepository.api;
 
+import org.apache.james.sieverepository.api.exception.ScriptNotFoundException;
 import org.apache.james.sieverepository.api.exception.SieveRepositoryException;
+import org.apache.james.sieverepository.api.exception.StorageException;
+
+import java.io.InputStream;
 
 public interface SieveRepositoryManagementMBean {
+
+    String EXTENSION_SIV = ".siv";
+    String EXTENSION_SIEVE = ".sieve";
 
     long getQuota() throws SieveRepositoryException;
 
@@ -35,5 +42,17 @@ public interface SieveRepositoryManagementMBean {
     void setQuota(String user, long quota) throws SieveRepositoryException;
 
     void removeQuota(String user) throws SieveRepositoryException;
+
+    void addActiveSieveScript(String user, String toFileName, String content) throws Exception;
+
+    InputStream getActive(String user) throws ScriptNotFoundException, StorageException;
+
+    static String sanitizeScriptName(String fileName) {
+        if (fileName.endsWith(EXTENSION_SIV) || fileName.endsWith(EXTENSION_SIEVE)) {
+            return fileName;
+        } else {
+            return fileName + EXTENSION_SIEVE;
+        }
+    }
 
 }

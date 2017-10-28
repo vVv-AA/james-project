@@ -25,11 +25,13 @@ import static org.easymock.EasyMock.createControl;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.io.IOUtils;
 import org.apache.james.cli.exceptions.InvalidArgumentNumberException;
 import org.apache.james.cli.exceptions.InvalidPortException;
 import org.apache.james.cli.exceptions.MissingCommandException;
@@ -58,7 +60,6 @@ public class ServerCmdTest {
     private MailboxProbe mailboxProbe;
     private QuotaProbe quotaProbe;
     private SieveProbe sieveProbe;
-
     private ServerCmd testee;
 
     @Before
@@ -1395,6 +1396,21 @@ public class ServerCmdTest {
             return;
         }
         ServerCmd.getPort(commandLine);
+    }
+
+    @Test
+    public void addActiveSieveAndGetActiveScript() throws Exception {
+
+        String script = "require \"fileinto\";\n" +
+                "\n" +
+                "fileinto \"INBOX.any\";";
+
+        String user = "btellier@apache.org";
+
+        sieveProbe.addActiveSieveScript(user, "myscript.sieve", script);
+
+        assertThat(IOUtils.toString(sieveProbe.getActive(user), StandardCharsets.UTF_8)).contains(script);
+
     }
 
 }

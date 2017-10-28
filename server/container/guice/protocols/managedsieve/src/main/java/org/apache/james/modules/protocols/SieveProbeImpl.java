@@ -24,6 +24,8 @@ import org.apache.james.mailbox.store.probe.SieveProbe;
 import org.apache.james.sieverepository.api.SieveRepository;
 import org.apache.james.utils.GuiceProbe;
 
+import java.io.InputStream;
+
 public class SieveProbeImpl implements GuiceProbe, SieveProbe {
 
     private final SieveRepository sieveRepository;
@@ -64,8 +66,15 @@ public class SieveProbeImpl implements GuiceProbe, SieveProbe {
     }
 
     @Override
-    public void addActiveSieveScript(String user, String name, String script) throws Exception {
-        sieveRepository.putScript(user, name, script);
-        sieveRepository.setActive(user, name);
+    public void addActiveSieveScript(String user, String toFileName, String content) throws Exception {
+        String sanitizedTargetFileName = SieveProbe.sanitizeScriptName(toFileName);
+        sieveRepository.putScript(user, sanitizedTargetFileName, content);
+        sieveRepository.setActive(user, sanitizedTargetFileName);
     }
+
+    @Override
+    public InputStream getActive(String user) throws Exception {
+        return sieveRepository.getActive(user);
+    }
+
 }

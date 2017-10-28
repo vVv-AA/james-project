@@ -258,6 +258,22 @@ Moreover, James allows to specify defaults maximum values, at the server level. 
 {cli} GetDefaultMaxStorageQuota
 ```
 
+## Manage Sieve Scripts
+
+You can add a Sieve script for a user, and set it as active with the following command:
+
+```
+{cli} AddSieveScript user@domain.tld fileToSaveIn.sieve /full/path/to/the/scriptFile.sieve
+
+```
+
+You can get active Sieve script for a user with the following command:
+
+```
+{cli} GetActiveSieveScript user@domain.tld
+
+```
+
 ## Re-indexing
 
 James allow you to index your emails in a search engine, for making search faster. Both ElasticSearch and Lucene are supported.

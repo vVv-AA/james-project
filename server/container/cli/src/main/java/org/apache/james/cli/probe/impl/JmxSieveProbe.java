@@ -20,11 +20,14 @@
 package org.apache.james.cli.probe.impl;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.management.MalformedObjectNameException;
 
 import org.apache.james.mailbox.store.probe.SieveProbe;
 import org.apache.james.sieverepository.api.SieveRepositoryManagementMBean;
+import org.apache.james.sieverepository.api.exception.ScriptNotFoundException;
+import org.apache.james.sieverepository.api.exception.StorageException;
 
 public class JmxSieveProbe implements SieveProbe, JmxProbe {
     
@@ -72,7 +75,13 @@ public class JmxSieveProbe implements SieveProbe, JmxProbe {
     }
 
     @Override
-    public void addActiveSieveScript(String user, String name, String script) throws Exception {
+    public void addActiveSieveScript(String user, String toFileName, String content) throws Exception {
+        sieveRepositoryManagement.addActiveSieveScript(user, toFileName, content);
     }
-    
+
+    @Override
+    public InputStream getActive(String user) throws ScriptNotFoundException, StorageException {
+        return sieveRepositoryManagement.getActive(user);
+    }
+
 }

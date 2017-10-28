@@ -22,13 +22,16 @@ package org.apache.james.cli;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.james.GuiceJamesServer;
 import org.apache.james.MemoryJmapTestRule;
+import org.apache.james.cli.type.CmdType;
 import org.apache.james.cli.util.OutputCapture;
 import org.apache.james.mailbox.store.search.ListeningMessageSearchIndex;
 import org.apache.james.modules.TestFilesystemModule;
 import org.apache.james.modules.protocols.SieveProbeImpl;
 import org.apache.james.modules.server.JMXServerModule;
+import org.apache.james.sieverepository.api.SieveRepositoryManagementMBean;
 import org.apache.james.sieverepository.api.exception.QuotaNotFoundException;
 import org.junit.After;
 import org.junit.Before;
@@ -36,6 +39,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+
+import java.io.File;
+import java.nio.charset.StandardCharsets;
 
 public class SieveCommandsIntegrationTest {
     public static final String USER = "user";
@@ -119,6 +125,25 @@ public class SieveCommandsIntegrationTest {
 
         expectedException.expect(QuotaNotFoundException.class);
         sieveProbe.getSieveQuota();
+    }
+
+    @Test
+    public void addActiveSieveAndGetActiveScript() throws Exception {
+        File scriptFile = File.createTempFile("testscript", ".sieve");
+        scriptFile.deleteOnExit();
+
+        String script = "require \"fileinto\";\n" +
+                "\n" +
+                "fileinto \"INBOX.any\";";
+        FileUtils.writeStringToFile(scriptFile, script, StandardCharsets.UTF_8);
+
+        ServerCmd.doMain(new String[] {"-h", "127.0.0.1", "-p", "9999", CmdType.ADDSIEVESCRIPT.getCommand(),
+                USER, "myscript.sieve", scriptFile.getAbsolutePath()});
+
+        ServerCmd.executeAndOutputToStream(new String[] {"-h", "127.0.0.1", "-p", "9999",
+                CmdType.GETACTIVESIEVESCRIPT.getCommand(), USER}, outputCapture.getPrintStream());
+
+        assertThat(outputCapture.getContent()).contains(script);
     }
 
 }

@@ -19,7 +19,12 @@
 
 package org.apache.james.mailbox.store.probe;
 
+import java.io.InputStream;
+
 public interface SieveProbe {
+
+    String EXTENSION_SIV = ".siv";
+    String EXTENSION_SIEVE = ".sieve";
 
     long getSieveQuota() throws Exception;
 
@@ -33,6 +38,16 @@ public interface SieveProbe {
 
     void removeSieveQuota(String user) throws Exception;
 
-    void addActiveSieveScript(String user, String name, String script) throws Exception;
+    void addActiveSieveScript(String user, String toFileName, String content) throws Exception;
+
+    InputStream getActive(String user) throws Exception;
+
+    static String sanitizeScriptName(String fileName) {
+        if (fileName.endsWith(EXTENSION_SIV) || fileName.endsWith(EXTENSION_SIEVE)) {
+            return fileName;
+        } else {
+            return fileName + EXTENSION_SIEVE;
+        }
+    }
 
 }
